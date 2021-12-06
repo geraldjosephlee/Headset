@@ -29,7 +29,7 @@ namespace CodingChallenge
             var response = await client.GetAsync(@"https://api.json-generator.com/templates/M-rnKhH0Z6uf/data?access_token=edfgbmrjms4yldm77epct3jgyo3q65wxjinddzmc");
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
-            var format1 = JsonSerializer.Deserialize<List<List<Format1>>>(json);
+            var format1 = JsonSerializer.Deserialize<List<List<Format1>>>(json, new JsonSerializerOptions() { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull});
         }
     }
 }
