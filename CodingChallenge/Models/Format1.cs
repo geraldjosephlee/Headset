@@ -2,11 +2,6 @@
 
 namespace CodingChallenge.Models
 {
-    public class Format1Output
-    {
-
-    }
-
     public class Format1
     {
         public List<StoreInformation>? StoreInformation { get; set; }
