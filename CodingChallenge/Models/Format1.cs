@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
+﻿using System.Collections.Generic;
 
 namespace CodingChallenge.Models
 {
+    public class Format1Output
+    {
+
+    }
+
     public class Format1
     {
         public List<StoreInformation>? StoreInformation { get; set; }
