@@ -7,6 +7,9 @@ using System.Linq;
 using System;
 using System.Threading.Tasks;
 using System.IO;
+using LiveCharts;
+using LiveCharts.Wpf;
+using System.Windows.Media;
 
 namespace CodingChallenge
 {
@@ -27,16 +30,16 @@ namespace CodingChallenge
         {
             // Get the data
             var uri = @"https://api.json-generator.com/templates/M-rnKhH0Z6uf/data?access_token=edfgbmrjms4yldm77epct3jgyo3q65wxjinddzmc";
-            var format1 = await getData(uri);
+            var input = await getData(uri);
 
             // Parse the data
-            var format1JSON = parseData(format1);
+            var output = parseData(input);
 
-            // Print to file
-            File.WriteAllText(@"C:\Users\Public\challengeOutput.json", format1JSON);
+            // Create charts
+            createCharts(output);
 
-            // Show in file explorer
-            System.Diagnostics.Process.Start("explorer.exe", @"C:\Users\Public");
+            // Export to file
+            exportJson(output);
         }
 
         private async Task<List<List<Format1Input>>> getData(string uri)
@@ -52,10 +55,10 @@ namespace CodingChallenge
             return format1;
         }
 
-        private string parseData(List<List<Format1Input>> format1)
+        private Format1Output parseData(List<List<Format1Input>> format1)
         {
             // Initialize output
-            var format1JSON = new Format1Output();
+            var output = new Format1Output();
 
             // Initialize total metrics
             var totalRevenue = 0.0;
@@ -138,9 +141,9 @@ namespace CodingChallenge
                 }
 
                 // Add to daily collection
-                format1JSON.Daily.Add(
-                    new Daily(day, dailySaleCount, dailyReturnCount, 
-                            dailyVoidCount, dailyNetRevenue, dailyTotalDiscounts, 
+                output.Daily.Add(
+                    new Daily(day, dailySaleCount, dailyReturnCount,
+                            dailyVoidCount, dailyNetRevenue, dailyTotalDiscounts,
                             dailyProfit, dailyNetItemCount));
 
                 // Tally totals
@@ -151,15 +154,144 @@ namespace CodingChallenge
                 totalItems += dailyNetItemCount;
                 totalSales += dailySaleCount;
                 totalReturns += dailyReturnCount;
-                totalVoids += dailyVoidCount;                
+                totalVoids += dailyVoidCount;
             }
 
             // Append totals
-            format1JSON.Totals = new Totals(totalRevenue, totalDiscount, totalProfit, 
+            output.Totals = new Totals(totalRevenue, totalDiscount, totalProfit,
                 totalTransactions, totalItems, totalSales, totalReturns, totalVoids);
 
-            // Serialize to JSON
-            return JsonSerializer.Serialize(format1JSON, new JsonSerializerOptions() { WriteIndented = true});
+            // Sort output daily ascending order
+            output.Daily = output.Daily.OrderBy(d => DateTime.Parse(d.Day)).ToList();
+
+            // Return output object
+            return output;
+        }
+
+        private void createCharts(Format1Output output)
+        {
+            GridTotal.DataContext = new TotalContext(output);
+            GridDaily.DataContext = new DailyContext(output);
+        }
+
+        public class TotalContext
+        {
+            public SeriesCollection SeriesCollection { get; set; }
+            public string[] Labels { get; set; }
+            public Func<double, string> Formatter { get; set; }
+
+            public TotalContext(Format1Output output)
+            {
+                // Lables
+                Labels = new[] { "Revenue", "Discount", "Profit", "Transactions", "Items", "Sale", "Return", "Void" };
+
+                // Show values
+                var values = new ChartValues<double>();
+                values.Add(output.Totals.RevenueTotal);
+                values.Add(output.Totals.DiscountTotal);
+                values.Add(output.Totals.Profit);
+                values.Add(output.Totals.TransCount);
+                values.Add(output.Totals.ItemCount);
+                values.Add(output.Totals.TotalSales);
+                values.Add(output.Totals.TotalReturns);
+                values.Add(output.Totals.TotalVoids);
+
+                // Series Collection
+                SeriesCollection = new SeriesCollection
+                {
+                    new ColumnSeries
+                    {
+                        Title = "Totals",
+                        Values = values
+                    }
+                };
+
+                Formatter = value => value.ToString("N");
+            }
+        }
+
+        public class DailyContext
+        {
+            public SeriesCollection SeriesCollection { get; set; }
+            public string[] Labels { get; set; }
+            public Func<double, string> YFormatter { get; set; }
+
+            public DailyContext(Format1Output output)
+            {
+                // Get Values
+                var salesValues = new ChartValues<double>();
+                var returnValues = new ChartValues<double>();
+                var voidValues = new ChartValues<double>();
+                var revenueValues = new ChartValues<double>();
+                var discountValues = new ChartValues<double>();
+                var profitValues = new ChartValues<double>();
+                var netItemCountValues = new ChartValues<double>();
+
+                foreach (var daily in output.Daily)
+                {
+                    salesValues.Add(daily.Sales);
+                    returnValues.Add(daily.Returns);
+                    voidValues.Add(daily.Voids);
+                    revenueValues.Add(daily.Revenue);
+                    discountValues.Add(daily.Discounts);
+                    profitValues.Add(daily.Profit);
+                    netItemCountValues.Add(daily.NetItemCount);
+                }
+
+                SeriesCollection = new SeriesCollection
+                {
+                    new LineSeries
+                    {
+                        Title = "Sales",
+                        Values = salesValues,
+                    },
+                    new LineSeries
+                    {
+                        Title = "Returns",
+                        Values = returnValues,
+                    },
+                    new LineSeries
+                    {
+                        Title = "Voids",
+                        Values = voidValues,
+                    },
+                    new LineSeries
+                    {
+                        Title = "Revenue",
+                        Values = revenueValues,
+                    },
+                    new LineSeries
+                    {
+                        Title = "Discounts",
+                        Values = discountValues,
+                    },
+                    new LineSeries
+                    {
+                        Title = "Profit",
+                        Values = profitValues,
+                    },
+                    new LineSeries
+                    {
+                        Title = "Items",
+                        Values = netItemCountValues,
+                    },
+                };
+
+                Labels = output.Daily.Select(d => d.Day).ToArray();
+                YFormatter = value => value.ToString("N");
+            }
+        }
+
+        private void exportJson(Format1Output format1Ouput)
+        {
+            // Serialize
+            var format1OuputString = JsonSerializer.Serialize(format1Ouput, new JsonSerializerOptions() { WriteIndented = true });
+
+            //Print to file
+            File.WriteAllText(@"C:\Users\Public\challengeOutput.json", format1OuputString);
+
+            // Show in file explorer
+            System.Diagnostics.Process.Start("explorer.exe", @"C:\Users\Public");
         }
     }
 }
