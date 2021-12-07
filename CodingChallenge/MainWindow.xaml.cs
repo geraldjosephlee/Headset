@@ -36,23 +36,23 @@ namespace CodingChallenge
             File.WriteAllText(@"C:\Users\Public\challengeOutput.json", format1JSON);            
         }
 
-        private async Task<List<List<Format1>>> getData(string uri)
+        private async Task<List<List<Format1Input>>> getData(string uri)
         {
             // Get Format1 JSON data, ignore nulls
             var client = new HttpClient();
             var response = await client.GetAsync(uri);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
-            var format1 = JsonSerializer.Deserialize<List<List<Format1>>>(json, new JsonSerializerOptions()
+            var format1 = JsonSerializer.Deserialize<List<List<Format1Input>>>(json, new JsonSerializerOptions()
             { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull });
 
             return format1;
         }
 
-        private string parseData(List<List<Format1>> format1)
+        private string parseData(List<List<Format1Input>> format1)
         {
             // Initialize output
-            var format1JSON = new Format1Json();
+            var format1JSON = new Format1Output();
 
             // Initialize total metrics
             var totalRevenue = 0.0;

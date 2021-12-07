@@ -2,12 +2,12 @@
 
 namespace CodingChallenge.Models
 {
-    public class Format1
+    public class Format1Input
     {
         public List<StoreInformation>? StoreInformation { get; set; }
         public List<Transaction>? transactions { get; set; }
 
-        public Format1()
+        public Format1Input()
         {
 
         }

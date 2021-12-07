@@ -2,12 +2,12 @@
 
 namespace CodingChallenge.Models
 {
-    public class Format1Json
+    public class Format1Output
     {
         public Totals Totals { get; set; } = new Totals();
         public List<Daily> Daily { get; set; } = new List<Daily>();
 
-        public Format1Json()
+        public Format1Output()
         {
 
         }
