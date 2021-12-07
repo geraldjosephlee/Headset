@@ -289,7 +289,10 @@ namespace CodingChallenge
 
             //Print to file
             File.WriteAllText(@"C:\Users\Public\challengeOutput.json", format1OuputString);
+        }
 
+        private void ShowJson_Click(object sender, RoutedEventArgs e)
+        {
             // Show in file explorer
             System.Diagnostics.Process.Start("explorer.exe", @"C:\Users\Public");
         }
