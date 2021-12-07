@@ -33,7 +33,10 @@ namespace CodingChallenge
             var format1JSON = parseData(format1);
 
             // Print to file
-            File.WriteAllText(@"C:\Users\Public\challengeOutput.json", format1JSON);            
+            File.WriteAllText(@"C:\Users\Public\challengeOutput.json", format1JSON);
+
+            // Show in file explorer
+            System.Diagnostics.Process.Start("explorer.exe", @"C:\Users\Public");
         }
 
         private async Task<List<List<Format1Input>>> getData(string uri)
