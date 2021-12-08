@@ -94,19 +94,10 @@ namespace CodingChallenge
                 // Get transactions
                 var dayTransactions = transactions.Where(dt => dt.createdDateUTC.Split('T')[0] == day);
 
-                // Get transaction types
-                var dayTransactionTypes = dayTransactions.Select(dtt => dtt.transactionType);
-
-                // Number of sales
-                var dailySaleCount = dayTransactionTypes.Where(dtt => dtt == @"Sale").Count();
-
-                // Number of returns
-                var dailyReturnCount = dayTransactionTypes.Where(dtt => dtt == @"Return").Count();
-
-                // Number of voided transactions
-                var dailyVoidCount = dayTransactionTypes.Where(dtt => dtt == @"Void").Count();
-
                 // Tally daily metics in one loop
+                var dailySaleCount = 0;
+                var dailyReturnCount = 0;
+                var dailyVoidCount = 0;
                 var dailyItemsSold = 0;
                 var dailyNetRevenue = 0m;
                 var dailyTotalDiscounts = 0m;
@@ -114,6 +105,21 @@ namespace CodingChallenge
                 var dailyNetItemCount = 0;
                 foreach (var dayTransaction in dayTransactions)
                 {
+                    // Sale, return, void count
+                    var tt = dayTransaction.transactionType;
+                    switch (tt)
+                    {
+                        case "Sale":
+                            dailySaleCount++;
+                            break;
+                        case "Return":
+                            dailyReturnCount++;
+                            break;
+                        case "Void":
+                            dailyVoidCount++;
+                            break;
+                    }
+
                     // Discounts (Transaction)
                     dailyTotalDiscounts += dayTransaction.transactionDiscounts.Where(td => td.amount.HasValue).ToList().Sum(td => td.amount.Value);
 
@@ -123,14 +129,14 @@ namespace CodingChallenge
                         // Items sold
                         if (item.quantity.HasValue)
                         {
-                            var tt = dayTransaction.transactionType;
-                            if (tt == "Sale")
+                            switch (tt)
                             {
-                                dailyItemsSold += item.quantity.Value;
-                            }
-                            else if (tt == "Return")
-                            {
-                                dailyItemsSold -= item.quantity.Value;
+                                case "Sale":
+                                    dailyItemsSold += item.quantity.Value;
+                                    break;
+                                case "Return":
+                                    dailyItemsSold -= item.quantity.Value;
+                                    break;
                             }
                         }
 
@@ -140,7 +146,7 @@ namespace CodingChallenge
                         // Check for nulls
                         if (item.quantity.HasValue && item.pricePaid.HasValue)
                         {
-                            // Revenue
+                            // Net revenue
                             dailyNetRevenue += item.quantity.Value * item.pricePaid.Value;
 
                             // Check for null
