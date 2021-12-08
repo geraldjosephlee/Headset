@@ -126,11 +126,11 @@ namespace CodingChallenge
                             var tt = dayTransaction.transactionType;
                             if (tt == "Sale")
                             {
-                                dailyItemsSold += dayTransaction.items.Count;
+                                dailyItemsSold += item.quantity.Value;
                             }
                             else if (tt == "Return")
                             {
-                                dailyItemsSold -= dayTransaction.items.Count;
+                                dailyItemsSold -= item.quantity.Value;
                             }
                         }
 
