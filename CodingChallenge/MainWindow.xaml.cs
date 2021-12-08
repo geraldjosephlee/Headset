@@ -114,22 +114,26 @@ namespace CodingChallenge
                 var dailyNetItemCount = 0;
                 foreach (var dayTransaction in dayTransactions)
                 {
-                    // Items sold
-                    if (dayTransaction.transactionType == "Sale")
-                    {
-                        dailyItemsSold += dayTransaction.items.Count;
-                    }
-                    else if (dayTransaction.transactionType == "Return")
-                    {
-                        dailyItemsSold -= dayTransaction.items.Count;
-                    }
-
                     // Discounts (Transaction)
                     dailyTotalDiscounts += dayTransaction.transactionDiscounts.Where(td => td.amount.HasValue).ToList().Sum(td => td.amount.Value);
 
                     // Item Metrics
                     foreach (var item in dayTransaction.items)
                     {
+                        // Items sold
+                        if (item.quantity.HasValue)
+                        {
+                            var tt = dayTransaction.transactionType;
+                            if (tt == "Sale")
+                            {
+                                dailyItemsSold += dayTransaction.items.Count;
+                            }
+                            else if (tt == "Return")
+                            {
+                                dailyItemsSold -= dayTransaction.items.Count;
+                            }
+                        }
+
                         // Discounts (Item)
                         dailyTotalDiscounts += item.itemDiscount.Where(id => id.amount.HasValue).ToList().Sum(id => id.amount.Value);
 
