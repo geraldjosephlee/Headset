@@ -1,6 +1,3 @@
-# Headset
-Headset Projects
-
 <h1>Headset Coding Challenge</h1>
 
 <h2>System Requirements</h2>
