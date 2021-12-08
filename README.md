@@ -1,9 +1,9 @@
 <h1>Headset Coding Challenge</h1>
 
 <h2>Description</h2>
-CodingChallenge is a WPF application that calculates daily and total metrics for sales data provided by<br><br>
+CodingChallenge is a WPF application that calculates daily and total metrics for sales data provided by:<br>
 https://api.json-generator.com/templates/M-rnKhH0Z6uf/data?access_token=edfgbmrjms4yldm77epct3jgyo3q65wxjinddzmc<br><br>
-Data is displayed using LiveCharts<br>
+Data is displayed using LiveCharts<br><br>
 Output is written to the path C:Users\Public\challengeOuput.json
 
 <h2>System Requirements</h2>
