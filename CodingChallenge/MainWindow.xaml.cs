@@ -28,9 +28,14 @@ namespace CodingChallenge
 
         private async void main()
         {
-            // Get the data
+            // Define endpoint
             var uri = @"https://api.json-generator.com/templates/M-rnKhH0Z6uf/data?access_token=edfgbmrjms4yldm77epct3jgyo3q65wxjinddzmc";
-            var input = await getData(uri);
+
+            // Get json data
+            var json = await getJson(uri);
+
+            // Deserialize json data
+            var input = getInput(json);
 
             // Parse the data
             var output = parseData(input);
@@ -42,13 +47,20 @@ namespace CodingChallenge
             exportJson(output);
         }
 
-        private async Task<List<List<Format1Input>>> getData(string uri)
+        private async Task<string> getJson(string uri)
         {
             // Get Format1 JSON data, ignore nulls
             var client = new HttpClient();
             var response = await client.GetAsync(uri);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
+
+            return json;
+        }
+
+        private List<List<Format1Input>> getInput(string json)
+        {
+            // Deserialize
             var format1 = JsonSerializer.Deserialize<List<List<Format1Input>>>(json, new JsonSerializerOptions()
             { DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull });
 
@@ -61,9 +73,9 @@ namespace CodingChallenge
             var output = new Format1Output();
 
             // Initialize total metrics
-            var totalRevenue = 0.0;
-            var totalDiscount = 0.0;
-            var totalProfit = 0.0;
+            var totalRevenue = 0m;
+            var totalDiscount = 0m;
+            var totalProfit = 0m;
             var totalTransactions = 0;
             var totalItems = 0;
             var totalSales = 0;
@@ -74,7 +86,7 @@ namespace CodingChallenge
             var transactions = format1[1][0].transactions;
 
             // Get list of days 
-            var days = transactions?.Select(t => t.createdDateUTC.Split('T')[0]).Distinct().ToList();
+            var days = transactions.Select(t => t.createdDateUTC.Split('T')[0]).Distinct().ToList();
 
             // For each day...
             foreach (var day in days)
@@ -96,9 +108,9 @@ namespace CodingChallenge
 
                 // Tally daily metics in one loop
                 var dailyItemsSold = 0;
-                var dailyNetRevenue = 0.0;
-                var dailyTotalDiscounts = 0.0;
-                var dailyProfit = 0.0;
+                var dailyNetRevenue = 0m;
+                var dailyTotalDiscounts = 0m;
+                var dailyProfit = 0m;
                 var dailyNetItemCount = 0;
                 foreach (var dayTransaction in dayTransactions)
                 {
@@ -178,7 +190,7 @@ namespace CodingChallenge
         {
             public SeriesCollection SeriesCollection { get; set; }
             public string[] Labels { get; set; }
-            public Func<double, string> Formatter { get; set; }
+            public Func<decimal, string> Formatter { get; set; }
 
             public TotalContext(Format1Output output)
             {
@@ -186,7 +198,7 @@ namespace CodingChallenge
                 Labels = new[] { "Revenue", "Discount", "Profit", "Transactions", "Items", "Sale", "Return", "Void" };
 
                 // Show values
-                var values = new ChartValues<double>();
+                var values = new ChartValues<decimal>();
                 values.Add(output.Totals.RevenueTotal);
                 values.Add(output.Totals.DiscountTotal);
                 values.Add(output.Totals.Profit);
@@ -214,18 +226,18 @@ namespace CodingChallenge
         {
             public SeriesCollection SeriesCollection { get; set; }
             public string[] Labels { get; set; }
-            public Func<double, string> YFormatter { get; set; }
+            public Func<decimal, string> YFormatter { get; set; }
 
             public DailyContext(Format1Output output)
             {
                 // Get Values
-                var salesValues = new ChartValues<double>();
-                var returnValues = new ChartValues<double>();
-                var voidValues = new ChartValues<double>();
-                var revenueValues = new ChartValues<double>();
-                var discountValues = new ChartValues<double>();
-                var profitValues = new ChartValues<double>();
-                var netItemCountValues = new ChartValues<double>();
+                var salesValues = new ChartValues<int>();
+                var returnValues = new ChartValues<int>();
+                var voidValues = new ChartValues<int>();
+                var revenueValues = new ChartValues<decimal>();
+                var discountValues = new ChartValues<decimal>();
+                var profitValues = new ChartValues<decimal>();
+                var netItemCountValues = new ChartValues<int>();
 
                 foreach (var daily in output.Daily)
                 {

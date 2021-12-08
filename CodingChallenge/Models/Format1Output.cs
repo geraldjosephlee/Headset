@@ -19,9 +19,9 @@ namespace CodingChallenge.Models
         public int Sales { get; set; }
         public int Returns { get; set; }
         public int Voids { get; set; }
-        public double Revenue { get; set; }
-        public double Discounts { get; set; }
-        public double Profit { get; set; }
+        public decimal Revenue { get; set; }
+        public decimal Discounts { get; set; }
+        public decimal Profit { get; set; }
         public int NetItemCount { get; set; }
 
         public Daily()
@@ -30,8 +30,8 @@ namespace CodingChallenge.Models
         }
 
         public Daily(string day, int sales, int returns, 
-            int voids, double revenue, double discounts, 
-            double profit, int netItemCount)
+            int voids, decimal revenue, decimal discounts, 
+            decimal profit, int netItemCount)
         {
             Day = day;
             Sales = sales;
@@ -46,9 +46,9 @@ namespace CodingChallenge.Models
 
     public class Totals
     {
-        public double RevenueTotal { get; set; }
-        public double DiscountTotal { get; set; }
-        public double Profit { get; set; }
+        public decimal RevenueTotal { get; set; }
+        public decimal DiscountTotal { get; set; }
+        public decimal Profit { get; set; }
         public int TransCount { get; set; }
         public int ItemCount { get; set; }
         public int TotalSales { get; set; }
@@ -60,8 +60,8 @@ namespace CodingChallenge.Models
 
         }
 
-        public Totals(double revenueTotal, double discountTotal, 
-            double profit, int transCount, int itemCount, 
+        public Totals(decimal revenueTotal, decimal discountTotal,
+            decimal profit, int transCount, int itemCount, 
             int totalSales, int totalReturns, int totalVoids)
         {
             RevenueTotal = revenueTotal;
